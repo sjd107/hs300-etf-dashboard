@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>沪深300 ETF规模占比</title>
+  <style>
+    :root { --ink:#11233a; --muted:#6d7b8d; --line:#dfe6ee; --blue:#1769aa; --navy:#12355b; --teal:#178f85; --orange:#e9853b; --surface:#fff; --bg:#f4f7fa; }
+    * { box-sizing:border-box; } body { margin:0; color:var(--ink); background:var(--bg); font-family:"Microsoft YaHei",Arial,sans-serif; }
+    main { max-width:1420px; padding:32px; margin:auto; }
+    .eyebrow { color:var(--blue); font-size:13px; font-weight:700; letter-spacing:.12em; }
+    h1 { margin:8px 0 6px; font-size:30px; letter-spacing:-.03em; } .subtitle { margin:0; color:var(--muted); }
+    .filters { margin-top:24px; padding:18px 20px; background:var(--surface); border:1px solid var(--line); border-radius:12px; display:flex; flex-wrap:wrap; gap:18px 28px; align-items:end; }
+    label { display:grid; gap:7px; font-size:12px; color:var(--muted); font-weight:700; } input { height:38px; border:1px solid #cbd5e1; border-radius:7px; padding:0 10px; color:var(--ink); font:inherit; }
+    .funds { display:flex; flex-wrap:wrap; gap:8px; } .funds label { display:flex; align-items:center; gap:6px; font-size:13px; color:var(--ink); font-weight:500; } .funds input { height:auto; } .update-wrap{display:grid;gap:7px}.update-btn{height:38px;border:0;border-radius:7px;padding:0 15px;background:var(--blue);color:#fff;font:700 13px "Microsoft YaHei",Arial,sans-serif;cursor:pointer}.update-btn:disabled{opacity:.6;cursor:wait}.update-status{max-width:210px;color:var(--muted);font-size:11px;line-height:1.35}
+    .stats { display:grid; grid-template-columns:repeat(5,minmax(0,1fr)); gap:14px; margin:20px 0; } .stat { padding:17px; background:var(--surface); border-radius:10px; border:1px solid var(--line); } .stat small { display:block; color:var(--muted); font-weight:700; } .asof { display:block; margin-top:5px; font-size:11px; color:#8a98a9; } .stat strong { display:block; font-size:24px; margin-top:7px; }
+    .panel { background:var(--surface); border:1px solid var(--line); border-radius:12px; padding:20px; margin-top:16px; } .panel-head { display:flex; justify-content:space-between; align-items:baseline; margin-bottom:8px; } h2 { font-size:17px; margin:0; } .unit { color:var(--muted); font-size:12px; }
+    .chart { width:100%; height:280px; display:block; overflow:visible; } .grid { stroke:#e7edf3; stroke-width:1; } .axis-text { fill:#758296; font-size:11px; } .line { fill:none; stroke-linecap:round; stroke-linejoin:round; stroke-width:3; } .dot { stroke:#fff; stroke-width:2; } .legend { display:flex; gap:18px; flex-wrap:wrap; font-size:12px; color:var(--muted); padding:4px 0 2px; } .legend span::before { content:""; display:inline-block; width:10px; height:10px; border-radius:50%; margin-right:6px; background:var(--c); }
+    .list-head { display:flex; justify-content:space-between; align-items:baseline; gap:16px; margin:20px 0 9px; } h3 { margin:0; font-size:14px; } .list-hint { color:var(--muted); font-size:12px; } .table-wrap { max-height:286px; overflow:auto; border:1px solid var(--line); border-radius:9px; } .data-table { width:100%; border-collapse:collapse; font-size:13px; } .data-table th { position:sticky; top:0; z-index:1; background:#f8fafc; color:var(--muted); font-size:12px; text-align:left; } .data-table th,.data-table td { padding:10px 13px; border-bottom:1px solid #edf1f5; white-space:nowrap; } .data-table td:not(:first-child),.data-table th:not(:first-child) { text-align:right; } .data-table tbody tr:last-child td { border-bottom:0; } .data-table tbody tr:hover { background:#f7fbff; } .up { color:#0f766e; } .down { color:#bf4a4a; }
+    .note { margin-top:16px; color:var(--muted); font-size:12px; line-height:1.7; }
+    @media(max-width:760px){ main{padding:20px 14px}.stats{grid-template-columns:repeat(2,1fr)}h1{font-size:25px}.chart{height:235px}.filters{gap:14px} }
+  </style>
+</head>
+<body>
+  <main>
+    <div class="eyebrow">INTERACTIVE DEMO</div>
+    <h1>沪深300头部 ETF 规模占比</h1>
+    <p class="subtitle">选择时间与ETF后，动态查看规模、占比及沪深300指数的变化</p>
+    <section class="filters">
+      <label>开始日期<input id="start" type="date"></label>
+      <label>结束日期<input id="end" type="date"></label>
+      <div><label>纳入基金</label><div class="funds" id="funds"></div></div>
+      <div class="update-wrap"><button class="update-btn" id="updateButton" type="button">数据更新说明</button><span class="update-status" id="updateStatus">公开版使用已发布的数据快照</span></div>
+    </section>
+    <section class="stats">
+      <div class="stat"><small>区间末日规模</small><span class="asof" id="lastAumDate">—</span><strong id="lastAum">—</strong></div>
+      <div class="stat"><small>区间末日占比</small><span class="asof" id="lastRatioDate">—</span><strong id="lastRatio">—</strong></div>
+      <div class="stat"><small>区间最高占比</small><span class="asof" id="highRatioDate">—</span><strong id="highRatio">—</strong></div>
+      <div class="stat"><small>区间最高日</small><span class="asof" id="highAumValue">—</span><strong id="highAumDate">—</strong></div>
+      <div class="stat"><small>纳入ETF数量</small><span class="asof" id="selectedRange">—</span><strong id="selectedCount">—</strong></div>
+    </section>
+    <section class="panel"><div class="panel-head"><h2>ETF合计规模</h2><span class="unit">单位：亿元</span></div><svg class="chart" id="aumChart"></svg><div class="legend"><span style="--c:#1769aa">ETF合计规模</span></div><div class="list-head"><h3>区间规模列表</h3><span class="list-hint" id="aumListHint">—</span></div><div class="table-wrap"><table class="data-table"><thead><tr><th>日期</th><th>ETF合计规模</th><th>较前一日变化</th></tr></thead><tbody id="aumList"></tbody></table></div></section>
+    <section class="panel"><div class="panel-head"><h2>规模占比与沪深300指数</h2><span class="unit">左轴：点　右轴：%</span></div><svg class="chart" id="marketChart"></svg><div class="legend"><span style="--c:#3d6f9d">沪深300指数（左轴）</span><span style="--c:#e9853b">规模占比（右轴）</span></div></section>
+    <section class="panel"><div class="panel-head"><h2>估算净申购额</h2><span class="unit">单位：亿元／日</span></div><svg class="chart" id="flowChart"></svg><div class="legend"><span style="--c:#2f9d72">估算净申购额</span></div></section>
+    <p class="note">口径：510300、510310、510330采用上交所每日基金规模；159919采用深交所每日份额乘当日收盘价。沪深300指数为每日收盘点位。估算净申购额＝当日ETF规模－前日ETF规模×当日沪深300指数／前日沪深300指数，用以剔除指数涨跌影响；并非交易所披露的原始申赎额。此页面为交互演示，不构成投资建议。</p>
+  </main>
+  <script src="data.js"></script>
+  <script>
+    const funds=[['etf_510300_yi','510300'],['etf_510310_yi','510310'],['etf_510330_yi','510330'],['etf_159919_yi','159919']];
+    const $=id=>document.getElementById(id); const fmt=n=>new Intl.NumberFormat('zh-CN',{maximumFractionDigits:2}).format(n); const signedFmt=n=>(n>0?'+':'')+fmt(n); const pct=n=>(n*100).toFixed(2)+'%'; const indexPoint=r=>r.hs300_market_cap_est_yi/515107.86*4103.54;
+    $('start').value=DATA[0].date; $('end').value=DATA.at(-1).date;
+    $('funds').innerHTML=funds.map(([key,label])=>`<label><input type="checkbox" value="${key}" checked>${label}</label>`).join('');
+    function path(points){return points.map((p,i)=>(i?'L':'M')+p[0].toFixed(1)+','+p[1].toFixed(1)).join(' ')}
+    function lineChart(id, series){const svg=$(id), W=svg.clientWidth||1100,H=svg.clientHeight||280, pad={l:54,r:55,t:18,b:28},w=W-pad.l-pad.r,h=H-pad.t-pad.b; const base=series[0],lo=Math.min(...base.values),hi=Math.max(...base.values),range=hi-lo||1, second=series[1],secondLo=second?Math.min(...second.values):0,secondHi=second?Math.max(...second.values):0,secondRange=secondHi-secondLo||1; const x=i=>pad.l+i*w/Math.max(base.values.length-1,1); let out=''; for(let i=0;i<4;i++){const yy=pad.t+i*h/3, v=hi-i*range/3, right=secondHi-i*secondRange/3;out+=`<line class="grid" x1="${pad.l}" y1="${yy}" x2="${W-pad.r}" y2="${yy}"/><text class="axis-text" x="${pad.l-8}" y="${yy+4}" text-anchor="end">${base.format(v)}</text>`+(second?`<text class="axis-text" x="${W-pad.r+8}" y="${yy+4}" fill="${second.color}">${second.format(right)}</text>`:'');} for(let i=0;i<base.values.length;i+=Math.max(1,Math.ceil(base.values.length/5))){out+=`<text class="axis-text" x="${x(i)}" y="${H-7}" text-anchor="middle">${base.labels[i].slice(5)}</text>`;} series.forEach(s=>{const ownLo=Math.min(...s.values),ownHi=Math.max(...s.values),ownRange=ownHi-ownLo||1; const py=v=>pad.t+(ownHi-v)*h/ownRange; out+=`<path class="line" stroke="${s.color}" d="${path(s.values.map((v,i)=>[x(i),py(v)]))}"/>`;});svg.setAttribute('viewBox',`0 0 ${W} ${H}`);svg.innerHTML=out;}
+    function render(){const keys=[...document.querySelectorAll('#funds input:checked')].map(x=>x.value); const rows=DATA.filter(r=>r.date>=$('start').value&&r.date<=$('end').value).map(r=>({...r,aum:keys.reduce((s,k)=>s+r[k],0)})); if(!rows.length){$('aumList').innerHTML='';$('aumListHint').textContent='无可用数据';return} const ratios=rows.map(r=>r.aum/r.hs300_market_cap_est_yi), indexPoints=rows.map(indexPoint), flows=rows.map((r,i)=>i===0?0:r.aum-rows[i-1].aum*indexPoints[i]/indexPoints[i-1]), last=rows.at(-1), high=Math.max(...ratios), highAt=rows[ratios.indexOf(high)], highAum=Math.max(...rows.map(r=>r.aum)), highAumAt=rows.find(r=>r.aum===highAum); $('lastAum').textContent=fmt(last.aum)+' 亿'; $('lastRatio').textContent=pct(ratios.at(-1)); $('highRatio').textContent=pct(high); $('highAumDate').textContent=highAumAt.date; $('highAumValue').textContent='合计规模 '+fmt(highAum)+' 亿'; $('selectedCount').textContent=keys.length+' 只'; $('lastAumDate').textContent='截至 '+last.date; $('lastRatioDate').textContent='截至 '+last.date; $('highRatioDate').textContent='发生于 '+highAt.date; $('selectedRange').textContent=$('start').value+' 至 '+$('end').value; $('aumListHint').textContent='共 '+rows.length+' 个交易日（最新在前）'; $('aumList').innerHTML=rows.slice().reverse().map((r,reverseIndex)=>{const index=rows.length-1-reverseIndex,change=index?r.aum-rows[index-1].aum:null,changeClass=change===null?'':change>0?'up':change<0?'down':'';return `<tr><td>${r.date}</td><td>${fmt(r.aum)} 亿</td><td class="${changeClass}">${change===null?'—':signedFmt(change)+' 亿'}</td></tr>`}).join(''); const labels=rows.map(r=>r.date); lineChart('aumChart',[{values:rows.map(r=>r.aum),labels,color:'#1769aa',format:fmt}]); lineChart('marketChart',[{values:indexPoints,labels,color:'#3d6f9d',format:fmt},{values:ratios,labels,color:'#e9853b',format:pct}]); lineChart('flowChart',[{values:flows,labels,color:'#2f9d72',format:signedFmt}]);}
+    function updateData(){const status=$('updateStatus');status.textContent='公开版为数据快照；请在本地更新数据后重新发布。'}
+    $('updateButton').addEventListener('click',updateData);
+    document.querySelectorAll('input').forEach(x=>x.addEventListener('change',render)); addEventListener('resize',render); render();
+  </script>
+</body>
+</html>
